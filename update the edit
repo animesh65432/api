@@ -1,0 +1,111 @@
+document.addEventListener("DOMContentLoaded", () => {
+    fetchData();
+});
+
+const addButton = document.getElementById("but");
+addButton.addEventListener("click", clicker);
+
+const mainForm = document.getElementById("mainForm");
+
+function clicker() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    createUser(name, email);
+}
+
+function fetchData() {
+    axios.get("https://crudcrud.com/api/21d5a1ab24274a66860a4a04d4392e42/edit")
+        .then((response) => {
+            if (response.data && response.data.length > 0) {
+                let string = JSON.stringify(response.data);
+                showData(string);
+            }
+        })
+        .catch((error) => {
+            displayError("Error fetching data:", error);
+        });
+}
+
+function createUser(name, email) {
+    axios.post("https://crudcrud.com/api/21d5a1ab24274a66860a4a04d4392e42/edit", {
+        user_name: name,
+        user_email: email
+    })
+        .then((response) => {
+            const resolve = JSON.stringify(response.data);
+            showData(resolve);
+        })
+        .catch((error) => {
+            displayError("Error creating user:", error.message);
+        });
+}
+
+function deleteData(itemId, element) {
+    axios.delete(`https://crudcrud.com/api/21d5a1ab24274a66860a4a04d4392e42/edit/${itemId}`)
+        .then(() => {
+            element.remove();
+        })
+        .catch((error) => {
+            displayError("Error deleting data:", error.message);
+        });
+}
+
+function showData(res) {
+    const editButton = document.createElement("button");
+    editButton.textContent = "EDIT";
+    editButton.classList.add("edit-icon");
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "DEL";
+
+    const dataContainer = document.createElement("p");
+    dataContainer.textContent = res;
+    dataContainer.appendChild(editButton);
+    dataContainer.appendChild(deleteButton);
+    document.body.appendChild(dataContainer);
+
+    editButton.onclick = function () {
+        const data = JSON.parse(res);
+        populateForm(data);
+    };
+
+    deleteButton.onclick = function () {
+        const data = JSON.parse(res);
+        const itemId = data._id;
+        deleteData(itemId, dataContainer);
+    };
+}
+
+function populateForm(data) {
+    document.getElementById("name").value = data.user_name;
+    document.getElementById("email").value = data.user_email;
+}
+
+mainForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    updateUser(userId, name, email);
+});
+
+function updateUser(userId, name, email) {
+    axios.put(`https://crudcrud.com/api/21d5a1ab24274a66860a4a04d4392e42/edit/${userId}`, {
+        user_name: name,
+        user_email: email
+    })
+        .then((response) => {
+            const resolve = JSON.stringify(response.data);
+        })
+        .catch((error) => {
+            displayError("Error updating user:", error.message);
+        });
+}
+
+function displayError(message, error) {
+    const errorElement = document.createElement("p");
+    errorElement.textContent = `${message} ${error}`;
+    document.body.appendChild(errorElement);
+}
