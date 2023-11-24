@@ -1,0 +1,76 @@
+document.addEventListener("DOMContentLoaded", () => {
+    fetchData();
+});
+
+const addButton = document.getElementById("but");
+addButton.addEventListener("click", clicker);
+
+function clicker() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    
+    createUser(name, email);
+}
+
+function fetchData() {
+    axios.get("https://crudcrud.com/api/300cc5ebe8a645dea58a1879b0098179/store")
+        .then((response) => {
+            let string = JSON.stringify(response.data);
+            showData(string);
+        })
+        .catch((error) => {
+            displayError("Error fetching data:", error);
+        });
+}
+
+function createUser(name, email) {
+    axios({
+        method: "POST",
+        url: "https://crudcrud.com/api/300cc5ebe8a645dea58a1879b0098179/store",
+        data: {
+            user_name: name,
+            user_email: email
+        }
+    })
+        .then((response) => {
+            const resolve = JSON.stringify(response.data);
+            showData(resolve);
+        })
+        .catch((error) => {
+            displayError("Error creating user:", error.message);
+        });
+}
+
+function deleteData(itemId, element) {
+    axios.delete(`https://crudcrud.com/api/300cc5ebe8a645dea58a1879b0098179/store/${itemId}`)
+        .then(() => {
+            element.remove();
+        })
+        .catch((error) => {
+            displayError("Error deleting data:", error.message);
+        });
+}
+
+function showData(res) {
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "DEL";
+
+    const dataContainer = document.createElement("p");
+    dataContainer.textContent = res;
+    dataContainer.appendChild(deleteButton);
+
+    document.body.appendChild(dataContainer);
+
+    deleteButton.onclick = function () {
+        const data = JSON.parse(res);
+        const itemId = data.id;
+        deleteData(itemId, dataContainer);
+    };
+}
+
+function displayError(message, error) {
+    const errorElement = document.createElement("p");
+    errorElement.textContent = `${message} ${error}`;
+    document.body.appendChild(errorElement);
+}
