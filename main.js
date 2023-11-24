@@ -1,0 +1,36 @@
+const button = document.getElementById("but");
+
+button.addEventListener("click", clicker);
+
+function clicker() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    axios({
+        method: "POST",
+        url: "https://crudcrud.com/api/300cc5ebe8a645dea58a1879b0098179/store",
+        data: {
+            user_name: name,
+            user_email: email
+        }
+    })
+        .then((response) => {
+            const resolve = JSON.stringify(response.data);
+            showinto(resolve);
+        })
+        .catch((error) => {
+            errors(error.message);
+        });
+}
+
+function showinto(res) {
+    const p = document.createElement("p");
+    p.textContent = res;
+    document.body.appendChild(p);
+}
+
+function errors(error) {
+    const pe = document.createElement("p");
+    pe.textContent = "SOMETHING WENT WRONG: " + error;
+    document.body.appendChild(pe);
+}
